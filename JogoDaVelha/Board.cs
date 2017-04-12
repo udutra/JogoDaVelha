@@ -22,7 +22,8 @@ namespace JogoDaVelha
             {
                 for (int x = 0; x < GetAlturaArray(); x++)
                 {
-                    cell[x, y] = 0;
+                    //cell[x, y] = 0;
+                    ZeraValorCelula(x,y);
                 }
             }
         }
