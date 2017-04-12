@@ -30,7 +30,6 @@ namespace JogoDaVelha
 
         public int[,] GetCell()
         {
-
             return cell;
         }
 
