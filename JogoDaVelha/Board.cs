@@ -19,7 +19,6 @@ namespace JogoDaVelha
             {
                 for (int x = 0; x < GetAlturaArray(); x++)
                 {
-                    //cell[x, y] = 0;
                     ZeraValorCelula(x,y);
                 }
             }
@@ -35,7 +34,6 @@ namespace JogoDaVelha
             cell = cellA;
         }
 
-
         public void AcrescentaValor(int x, int y)
         {
             AtribuiValorCelula(x, y, RetornaValorCelula(x, y) + 1);
@@ -49,7 +47,7 @@ namespace JogoDaVelha
 
         public void AtribuiValorCelula(int x, int y, int val)
         {
-            cell[x, y] = val;
+           cell[x, y] = val;
         }
 
         public int RetornaValorCelula(int x, int y)
@@ -69,15 +67,13 @@ namespace JogoDaVelha
 
         public int GetVencedor()
         {
-            int vencedor = -1;
-
             for (int player = 1; player <= 2; player++)
             {
                 for (int y = 0; y < cell.GetLength(1); y++) // linhas
                 {
                     if (cell[0, y] == player && cell[1, y] == player && cell[2, y] == player)
                     {
-                        vencedor = player;
+                        return player;
                     }
                 }
 
@@ -85,27 +81,24 @@ namespace JogoDaVelha
                 {
                     if (cell[x, 0] == player && cell[x, 1] == player && cell[x, 2] == player)
                     {
-                        vencedor = player;
+                        return player;
                     }
                 }
 
                 {//Diagonal
                     if (cell[0, 0] == player && cell[1, 1] == player && cell[2, 2] == player)
                     {
-                        vencedor = player;
+                        return player;
                     }
 
                     if (cell[0, 2] == player && cell[1, 1] == player && cell[2, 0] == player)
                     {
-                        vencedor = player;
+                        return player;
                     }
                 }
             }
-            if (vencedor == -1)
-            {
-                vencedor = VerificaEmpate();
-            }
-            return vencedor;
+
+            return 0;
         }
 
         private int VerificaEmpate()
@@ -197,8 +190,8 @@ namespace JogoDaVelha
             {
                 for (int x = 0; x < GetAlturaArray(); x++)
                 {
-                    //minhaCopia.cell[x, y] = cell[x, y];
-                    minhaCopia.AtribuiValorCelula(x, y, RetornaValorCelula(x,y));
+                    minhaCopia.cell[x, y] = cell[x, y];
+                    //minhaCopia.AtribuiValorCelula(x, y, RetornaValorCelula(x,y));
                 }
             }
 
@@ -213,10 +206,12 @@ namespace JogoDaVelha
             {
                 for (int x = 0; x < GetAlturaArray(); x++)
                 {
-                    Board minhaCopia = GetCopia();
-                    //minhaCopia.cell[x, y] = jogador;
-                    minhaCopia.AtribuiValorCelula(x, y, jogador);
-                    resultado.Add(minhaCopia);
+                    if (cell[x, y] == 0)
+                    {
+                        Board minhaCopia = GetCopia();
+                        minhaCopia.AtribuiValorCelula(x, y, jogador);
+                        resultado.Add(minhaCopia);
+                    }
                 }
             }
 

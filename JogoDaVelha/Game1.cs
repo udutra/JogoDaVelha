@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace JogoDaVelha
 {
@@ -24,11 +25,15 @@ namespace JogoDaVelha
         private int Height;
         private int tamanhoImagem;
 
-        private float countDown = 3;
+        private float countDown = 3, stateTimer;
 
         private Board board;
 
-        private UIButton btSair;
+        private UIButton btSair, btStart;
+
+        private enum GameState { Null, MainMenu, PlayerTurn, ComputerTurn, ShowResults};
+
+        private GameState currGameState = GameState.Null;
 
         public Game1()
         {
@@ -61,7 +66,9 @@ namespace JogoDaVelha
             cellX       = Content.Load<Texture2D>("Sprites/CellX");
             fonteNormal = Content.Load<SpriteFont>("Fonts/Normal");
 
-            btSair = new UIButton(new Vector2(10, 10), new Vector2(64, 32), cellEmpty, "Sair", fonteNormal);
+            btSair = new UIButton(new Vector2(10, 70), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
+            btStart = new UIButton(new Vector2(10, 10), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
+            EnterGameState(GameState.MainMenu);
         }
 
         protected override void UnloadContent()
@@ -71,7 +78,7 @@ namespace JogoDaVelha
 
         protected override void Update(GameTime gameTime)
         {
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            /*float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             {//simple timer sample
                 countDown -= dt;
@@ -80,60 +87,19 @@ namespace JogoDaVelha
                     countDown = 3;
                     System.Diagnostics.Debug.WriteLine("BOOM!");
                 }
-            }
+            }*/
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Exit();
             }
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
-            {
-                Vector2 pTeste = new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y);
+            
 
-                if (btSair.TesteClick(pTeste))
-                {
-                    Exit();
-                }
-
-                for (int y = 0; y < board.GetAlturaArray(); y++)
-                {
-                    for (int x = 0; x < board.GetAlturaArray(); x++)
-                    {
-                        Vector2 pMin = new Vector2(x * tamanhoImagem + (Width - tamanhoImagem * board.GetAlturaArray()) / 2, y * tamanhoImagem + (Height - tamanhoImagem * board.GetComprimentoArray()) / 2);
-                        Vector2 pMax = pMin + new Vector2(tamanhoImagem, tamanhoImagem);
-
-                        /*Vector2 pMax = pMin;
-                        pMax.X += 64;
-                        pMax.Y += 64;*/
-
-                        if (((pTeste.X > pMin.X) && (pTeste.X < pMax.X)) && ((pTeste.Y > pMin.Y) && (pTeste.Y < pMax.Y)))
-                        {
-
-                            board.AcrescentaValor(x, y); //board.cell[x,y] +=  1;
-
-
-                            if (board.RetornaValorCelula(x, y) > 2) //if(board.cell[x,y] > 2)
-                            {
-                                board.ZeraValorCelula(x, y); //board.cell[x, y] = 0;
-                            }
-                        }
-                    }
-                }
-            }
-
-            int ganhador = board.GetVencedor();
-
-            if (ganhador > 0)
-            {
-                System.Diagnostics.Debug.WriteLine("Ganhador é: " + ganhador);
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("jogo empatado!");
-            }
+            UpdateGameState(gameTime);
 
             prevMouseState = Mouse.GetState();
+
             base.Update(gameTime);
         }
 
@@ -142,25 +108,206 @@ namespace JogoDaVelha
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
 
-            //string titulo = "Tic-Tac-Toe";
-            string titulo = "Tempo: " + (int) gameTime.TotalGameTime.TotalSeconds + " segundos";
-            Vector2 textSize = fonteNormal.MeasureString(titulo);
-            //spriteBatch.DrawString(fonteNormal, "Hello World", textSize, Color.White);
+            DrawGameState(gameTime);
 
-            spriteBatch.DrawString(
-                fonteNormal,
-                titulo, 
-                new Vector2(Width*0.5f,40),    //position 
-                Color.White,            //color
-                0.0f,                   //rotation
-                textSize * 0.5f,        //origin (pivot)
-                Vector2.One,            //scale
-                SpriteEffects.None, 
-                0.0f
-                );
+            spriteBatch.End();
+            base.Draw(gameTime);
+        }
 
-            btSair.Draw(spriteBatch);
+        private void EnterGameState(GameState newState)
+        {
+            LeaveGameState();
+            currGameState = newState;
+            switch (currGameState)
+            {
+                case GameState.MainMenu:
+                    {
+                        board.Limpar();
+                    }
+                    break;
 
+                case GameState.PlayerTurn:
+                    {
+                    }
+                    break;
+
+                case GameState.ComputerTurn:
+                    {
+                        List<Board> possibilidades = board.GetPossibilidades(1);
+
+                        board = possibilidades[0];
+
+                        if (board.EhFimDeJogo())
+                        {
+                            EnterGameState(GameState.ShowResults);
+                        }
+                        else
+                        {
+                            EnterGameState(GameState.PlayerTurn);
+                        }
+
+                    }
+                    break;
+
+                case GameState.ShowResults:
+                    {
+                        stateTimer = 3;
+                    }
+                    break;
+            }
+        }
+
+        public void LeaveGameState()
+        {
+            switch (currGameState)
+            {
+                case GameState.MainMenu: { } break;
+                case GameState.PlayerTurn: { } break;
+                case GameState.ComputerTurn: { } break;
+                case GameState.ShowResults: { } break;
+            }
+        }
+
+        public void UpdateGameState(GameTime gameTime)
+        {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            switch (currGameState)
+            {
+                case GameState.MainMenu: {
+                        if (Mouse.GetState().LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                        {
+                            Vector2 pTeste = new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y);
+
+                            if (btStart.TesteClick(pTeste))
+                            {
+                                EnterGameState(GameState.PlayerTurn);
+                            }
+
+                            if (btSair.TesteClick(pTeste))
+                            {
+                                Exit();
+                            }
+                        }
+                    }
+                    break;
+
+                case GameState.PlayerTurn:
+                    {
+                        if (Mouse.GetState().LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                        {
+                            Vector2 pTeste = new Vector2(Mouse.GetState().Position.X, Mouse.GetState().Position.Y);
+
+                            for (int y = 0; y < board.GetAlturaArray(); y++)
+                            {
+                                for (int x = 0; x < board.GetAlturaArray(); x++)
+                                {
+                                    Vector2 pMin = new Vector2(x * tamanhoImagem + (Width - tamanhoImagem * board.GetAlturaArray()) / 2, y * tamanhoImagem + (Height - tamanhoImagem * board.GetComprimentoArray()) / 2);
+                                    Vector2 pMax = pMin + new Vector2(tamanhoImagem, tamanhoImagem);
+
+                                    if (((pTeste.X > pMin.X) && (pTeste.X < pMax.X)) && ((pTeste.Y > pMin.Y) && (pTeste.Y < pMax.Y)))
+                                    {
+                                        board.AtribuiValorCelula(x, y, 2);
+
+                                        if (board.EhFimDeJogo())
+                                        {
+                                            EnterGameState(GameState.ShowResults);
+                                        }
+                                        else
+                                        {
+                                            EnterGameState(GameState.ComputerTurn);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case GameState.ComputerTurn: { } break;
+                case GameState.ShowResults:
+                    {
+                        stateTimer -= dt;
+                        if (stateTimer <= 0)
+                        {
+                            EnterGameState(GameState.MainMenu);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        public void DrawGameState(GameTime gameTime)
+        {
+            switch (currGameState)
+            {
+                case GameState.MainMenu:
+                    {
+                        btSair.Draw(spriteBatch);
+                        btStart.Draw(spriteBatch);
+                        /*//string titulo = "Tic-Tac-Toe";
+                        string titulo = "Tempo: " + (int)gameTime.TotalGameTime.TotalSeconds + " segundos";
+                        Vector2 textSize = fonteNormal.MeasureString(titulo);
+                        
+                        spriteBatch.DrawString(
+                            fonteNormal,
+                            titulo,
+                            new Vector2(Width * 0.5f, 40),    //position 
+                            Color.White,            //color
+                            0.0f,                   //rotation
+                            textSize * 0.5f,        //origin (pivot)
+                            Vector2.One,            //scale
+                            SpriteEffects.None,
+                            0.0f
+                            );*/
+                    }
+                    break;
+
+                case GameState.PlayerTurn:
+                    {
+                        DrawBoard();
+                    }
+                    break;
+
+                case GameState.ComputerTurn:
+                    {
+                        DrawBoard();
+                    }
+                    break;
+
+                case GameState.ShowResults: {
+
+                        string titulo = "Fim do jogo";
+
+                        if (board.GetVencedor() == 1)
+                        {
+                            titulo = titulo + " - O ganhador é o computador";
+                        }
+                        else
+                        {
+                            titulo = titulo + " - O ganhador é o jogador";
+                        }
+
+                        
+                        Vector2 textSize = fonteNormal.MeasureString(titulo);
+                        spriteBatch.DrawString(
+                            fonteNormal,
+                            titulo,
+                            new Vector2(Width * 0.5f, 40),    //position 
+                            Color.White,            //color
+                            0.0f,                   //rotation
+                            textSize * 0.5f,        //origin (pivot)
+                            Vector2.One,            //scale
+                            SpriteEffects.None,
+                            0.0f
+                            );
+                        DrawBoard();
+                    }
+                    break;
+            }
+        }
+
+        void DrawBoard()
+        {
             for (int y = 0; y < board.GetComprimentoArray(); y++)
             {
                 for (int x = 0; x < board.GetAlturaArray(); x++)
@@ -168,7 +315,7 @@ namespace JogoDaVelha
                     cellPos = new Vector2(x * tamanhoImagem + (Width - tamanhoImagem * board.GetAlturaArray()) / 2, y * tamanhoImagem + (Height - tamanhoImagem * board.GetComprimentoArray()) / 2);
 
                     spriteBatch.Draw(cellEmpty, cellPos, Color.White);
-                    
+
 
                     //if(board.cell[x,y] == 1){
                     if (board.RetornaValorCelula(x, y) == 1)
@@ -182,9 +329,7 @@ namespace JogoDaVelha
                     }
                 }
             }
-
-            spriteBatch.End();
-            base.Draw(gameTime);
         }
+
     }
 }
