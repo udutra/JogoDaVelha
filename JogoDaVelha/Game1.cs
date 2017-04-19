@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
@@ -11,9 +12,10 @@ namespace JogoDaVelha
 
         private SpriteBatch spriteBatch;
 
-        private Texture2D cellEmpty;
-        private Texture2D cellO;
-        private Texture2D cellX;
+        private Texture2D cellEmpty, cellO, cellX;
+
+        private SoundEffect sndGood, sndElephant, sndMistery, sndSong;
+        private SoundEffectInstance playSound;
 
         private SpriteFont fonteNormal;
 
@@ -25,7 +27,7 @@ namespace JogoDaVelha
         private int Height;
         private int tamanhoImagem;
 
-        private float countDown = 3, stateTimer;
+        private float stateTimer;
 
         private Board board;
 
@@ -65,6 +67,13 @@ namespace JogoDaVelha
             cellO       = Content.Load<Texture2D>("Sprites/CellO");
             cellX       = Content.Load<Texture2D>("Sprites/CellX");
             fonteNormal = Content.Load<SpriteFont>("Fonts/Normal");
+            sndGood = Content.Load<SoundEffect>("Sounds/ir_begin");
+            sndElephant = Content.Load<SoundEffect>("Sounds/ir_end");
+            sndMistery = Content.Load<SoundEffect>("Sounds/ir_inter");
+            sndSong = Content.Load<SoundEffect>("Sounds/Speech_Off");
+            playSound = sndSong.CreateInstance();
+            playSound.IsLooped = true;
+            playSound.Play();
 
             btSair = new UIButton(new Vector2(10, 70), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
             btStart = new UIButton(new Vector2(10, 10), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
@@ -152,6 +161,7 @@ namespace JogoDaVelha
                 case GameState.ShowResults:
                     {
                         stateTimer = 3;
+                        sndMistery.Play();
                     }
                     break;
             }
@@ -161,10 +171,10 @@ namespace JogoDaVelha
         {
             switch (currGameState)
             {
-                case GameState.MainMenu: { } break;
+                case GameState.MainMenu: { playSound.Stop(); } break;
                 case GameState.PlayerTurn: { } break;
                 case GameState.ComputerTurn: { } break;
-                case GameState.ShowResults: { } break;
+                case GameState.ShowResults: { playSound.Play(); } break;
             }
         }
 
@@ -181,6 +191,7 @@ namespace JogoDaVelha
 
                             if (btStart.TesteClick(pTeste))
                             {
+                                sndGood.Play();
                                 EnterGameState(GameState.PlayerTurn);
                             }
 
@@ -208,6 +219,7 @@ namespace JogoDaVelha
                                     if (((pTeste.X > pMin.X) && (pTeste.X < pMax.X)) && ((pTeste.Y > pMin.Y) && (pTeste.Y < pMax.Y)))
                                     {
                                         board.AtribuiValorCelula(x, y, 2);
+                                        sndElephant.Play(1.0f, -1.0f, 0.0f);
 
                                         if (board.EhFimDeJogo())
                                         {
@@ -306,7 +318,7 @@ namespace JogoDaVelha
             }
         }
 
-        void DrawBoard()
+        public void DrawBoard()
         {
             for (int y = 0; y < board.GetComprimentoArray(); y++)
             {

@@ -56,3 +56,27 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Normal.spritefont
 
+#begin Sounds/ir_end.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ir_end.wav
+
+#begin Sounds/ir_inter.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ir_inter.wav
+
+#begin Sounds/ir_begin.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ir_begin.wav
+
+#begin Sounds/Speech_Off.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Speech_Off.wav
+
