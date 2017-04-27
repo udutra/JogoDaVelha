@@ -13,7 +13,7 @@ namespace JogoDaVelha
 
         private SpriteBatch spriteBatch;
 
-        private Texture2D cellEmpty, cellO, cellX, rbSelecionado, rbNaoSelecionado, grafico1, grafico2, grafico3, btCima, btBaixo;
+        private Texture2D cellEmpty, cellO, cellX, rbSelecionado, rbNaoSelecionado, grafico, btCima, btBaixo, volMais, volMenos, mute;
 
         private SoundEffect sndGood, sndElephant, sndMistery, sndSong;
         private SoundEffectInstance playSound;
@@ -24,15 +24,14 @@ namespace JogoDaVelha
 
         private MouseState prevMouseState;
 
-        private int Width;
-        private int Height;
-        private int tamanhoImagem;
+        private int Width, Height, tamanhoImagem, nivel;
+        private Boolean boolMute;
 
-        private float stateTimer;
+        private float stateTimer, volume;
 
         private Board board;
 
-        private UIButton btSair, btStart, btAumentar, btDiminuir;
+        private UIButton btSair, btStart, btAumentar, btDiminuir, btMute, btVolMais, btVolMenos;
         private UIRadioButton rbComputador, rbUsuario;
 
         private enum GameState { Null, MainMenu, PlayerTurn, ComputerTurn, ShowResults};
@@ -46,7 +45,8 @@ namespace JogoDaVelha
             Width = 640;
             Height = 400;
             tamanhoImagem = 64;
-
+            nivel = 1;
+            boolMute = false;
             board = new Board();
 
             graphics.PreferredBackBufferWidth = Width;
@@ -70,9 +70,10 @@ namespace JogoDaVelha
             cellX               = Content.Load<Texture2D>("Sprites/CellX");
             rbSelecionado       = Content.Load<Texture2D>("Sprites/rb32_32");
             rbNaoSelecionado    = Content.Load<Texture2D>("Sprites/rb32_32_ns");
-            grafico1            = Content.Load<Texture2D>("Sprites/grafico1_sf");
-            grafico2            = Content.Load<Texture2D>("Sprites/grafico2_sf");
-            grafico3            = Content.Load<Texture2D>("Sprites/grafico3_sf");
+            grafico             = Content.Load<Texture2D>("Sprites/grafico1_sf");
+            mute                = Content.Load<Texture2D>("Sprites/red-listen-32");
+            volMais             = Content.Load<Texture2D>("Sprites/red-volume-up-32");
+            volMenos            = Content.Load<Texture2D>("Sprites/red-volume-down-32");
             btCima              = Content.Load<Texture2D>("Sprites/botaoCima_sf");
             btBaixo             = Content.Load<Texture2D>("Sprites/botaoBaixo_sf");
             fonteNormal         = Content.Load<SpriteFont>("Fonts/Normal");
@@ -84,14 +85,18 @@ namespace JogoDaVelha
             
             playSound           = sndSong.CreateInstance();
             playSound.IsLooped  = true;
+            playSound.Volume = 0.5f;
             playSound.Play();
 
             btSair          = new UIButton(new Vector2(10, 340), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
             btStart         = new UIButton(new Vector2(10, 80), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
             btAumentar      = new UIButton(new Vector2(450, 280), new Vector2(18, 18), btCima, "", fonteNormal);
             btDiminuir      = new UIButton(new Vector2(450, 300), new Vector2(18, 18), btBaixo, "", fonteNormal);
-            rbComputador    = new UIRadioButton(new Vector2(10, 200), new Vector2(32, 32), rbSelecionado, "", fonteNormal, true);
-            rbUsuario       = new UIRadioButton(new Vector2(10, 237), new Vector2(32, 32), rbNaoSelecionado, "", fonteNormal, false);
+            btMute          = new UIButton(new Vector2(500, 358), new Vector2(32, 32), mute, "", fonteNormal);
+            btVolMais       = new UIButton(new Vector2(545, 358), new Vector2(32, 32), volMais, "", fonteNormal);
+            btVolMenos      = new UIButton(new Vector2(590, 358), new Vector2(32, 32), volMenos, "", fonteNormal);
+            rbComputador    = new UIRadioButton(new Vector2(10, 200), new Vector2(20, 20), rbSelecionado, "", fonteNormal, true);
+            rbUsuario       = new UIRadioButton(new Vector2(10, 237), new Vector2(20, 20), rbNaoSelecionado, "", fonteNormal, false);
             EnterGameState(GameState.MainMenu);
         }
 
@@ -254,9 +259,110 @@ namespace JogoDaVelha
                                     rbComputador.setBackground(rbSelecionado);
                                     rbComputador.setCheck(true);
                                 }
-                                
+                            }
+
+                            if (btAumentar.TesteClick(pTeste))
+                            {
+                                if (nivel == 1)
+                                {
+                                    grafico = Content.Load<Texture2D>("Sprites/grafico2_sf");
+                                    nivel++;
+                                }
+                                else if(nivel == 2)
+                                {
+                                    grafico = Content.Load<Texture2D>("Sprites/grafico3_sf");
+                                    nivel++;
+                                }
+                                else
+                                {
+
+                                }
+                            }
+                            if (btDiminuir.TesteClick(pTeste))
+                            {
+                                if (nivel == 3)
+                                {
+                                    grafico = Content.Load<Texture2D>("Sprites/grafico2_sf");
+                                    nivel--;
+                                }
+                                else if (nivel == 2)
+                                {
+                                    grafico = Content.Load<Texture2D>("Sprites/grafico1_sf");
+                                    nivel--;
+                                }
+                                else
+                                {
+                                    
+                                }
+                            }
+
+                            if (btMute.TesteClick(pTeste))
+                            {
+                                if (boolMute == false)
+                                {
+                                    mute = Content.Load<Texture2D>("Sprites/red-not-listen-32");
+                                    btMute.setBackground(mute);
+                                    playSound.Pause();
+                                    boolMute = true;
+                                }
+                                else
+                                {
+                                    mute = Content.Load<Texture2D>("Sprites/red-listen-32");
+                                    btMute.setBackground(mute);
+                                    playSound.Play();
+                                    boolMute = false;
+                                    if (playSound.Volume == 0){
+                                        playSound.Volume = playSound.Volume + 0.1f;
+                                    }
+                                }
+                            }
+
+                            if (btVolMais.TesteClick(pTeste))
+                            {
+                                if (playSound.Volume > 0.9)
+                                {
+                                    playSound.Volume = 1;
+                                }
+
+                                else if (playSound.Volume < 1 )
+                                {
+                                    if (playSound.Volume == 0)
+                                    {
+                                        mute = Content.Load<Texture2D>("Sprites/red-listen-32");
+                                        btMute.setBackground(mute);
+                                        playSound.Play();
+                                        boolMute = false;
+                                        playSound.Volume = playSound.Volume + 0.1f;
+                                    }
+                                    else
+                                    {
+                                        playSound.Volume = playSound.Volume + 0.1f;
+                                    }
+
+                                }
 
                             }
+
+                            if (btVolMenos.TesteClick(pTeste))
+                            {
+                                if (playSound.Volume > 0 && playSound.Volume < 0.2)
+                                {
+                                    playSound.Volume = 0;
+                                    mute = Content.Load<Texture2D>("Sprites/red-not-listen-32");
+                                    btMute.setBackground(mute);
+                                    playSound.Pause();
+                                    boolMute = true;
+                                }
+
+                                else if (playSound.Volume > 0)
+                                {
+                                    //System.Console.WriteLine("Volume antes: " + playSound.Volume);
+                                    playSound.Volume = playSound.Volume - 0.1f;
+                                    //System.Console.WriteLine("Volume depois: " + playSound.Volume);
+                                }
+
+                            }
+
                         }
 
 
@@ -330,13 +436,17 @@ namespace JogoDaVelha
                         btStart.Draw(spriteBatch);
                         btAumentar.Draw(spriteBatch);
                         btDiminuir.Draw(spriteBatch);
+                        btMute.Draw(spriteBatch);
+                        btVolMais.Draw(spriteBatch);
+                        btVolMenos.Draw(spriteBatch);
                         rbComputador.Draw(spriteBatch);
                         rbUsuario.Draw(spriteBatch);
 
                         DrawString("Quem começa jogando", new Vector2(10, 155), new Color(1.0f, 1.0f, 1.0f, 1));
                         DrawString("Dificuldade", new Vector2(500, 155), new Color(1.0f, 1.0f, 1.0f, 1));
 
-                        spriteBatch.Draw(grafico1, new Vector2(490,200), Color.White);
+                        spriteBatch.Draw(grafico, new Vector2(490,200), Color.White);
+                        
 
                     }
                     break;
