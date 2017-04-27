@@ -24,22 +24,6 @@ namespace JogoDaVelha
             }
         }
 
-        public int[,] GetCell()
-        {
-            return cell;
-        }
-
-        public void SetCell(int[,] cellA)
-        {
-            cell = cellA;
-        }
-
-        public void AcrescentaValor(int x, int y)
-        {
-            AtribuiValorCelula(x, y, RetornaValorCelula(x, y) + 1);
-            //cell[x, y] += 1;
-        }
-
         public void ZeraValorCelula(int x, int y)
         {
             cell[x, y] = 0;
@@ -69,7 +53,7 @@ namespace JogoDaVelha
         {
             for (int player = 1; player <= 2; player++)
             {
-                for (int y = 0; y < cell.GetLength(1); y++) // linhas
+                for (int y = 0; y < GetComprimentoArray(); y++) // linhas
                 {
                     if (cell[0, y] == player && cell[1, y] == player && cell[2, y] == player)
                     {
@@ -77,7 +61,7 @@ namespace JogoDaVelha
                     }
                 }
 
-                for (int x = 0; x < cell.GetLength(0); x++) // colunas
+                for (int x = 0; x < GetAlturaArray(); x++) // colunas
                 {
                     if (cell[x, 0] == player && cell[x, 1] == player && cell[x, 2] == player)
                     {
@@ -116,7 +100,7 @@ namespace JogoDaVelha
             return 0;
         }
 
-        static public int Minimax(Board board, int profundidade, int jogador)
+        public int Minimax(Board board, int profundidade, int jogador)
         {
             if (board.EhFimDeJogo() || profundidade == 0)
             {
@@ -134,7 +118,7 @@ namespace JogoDaVelha
                     valor = Math.Min(valor, Minimax(p, profundidade - 1, 1 /* Computador */));
                 }
             }
-            else // computador
+            else //jogador == 1 computador
             {
                 valor = -9999999;
                 List<Board> possibilidades = board.GetPossibilidades(1);
@@ -168,11 +152,12 @@ namespace JogoDaVelha
 
         public int CalcularScore()
         {
-            if (GetVencedor() == 1)
+            int ganhador  = GetVencedor();
+            if (ganhador == 1)
             {
                 return 1;
             }
-            else if (GetVencedor() == 2)
+            else if (ganhador == 2)
             {
                 return -1;
             }
@@ -214,7 +199,6 @@ namespace JogoDaVelha
                     }
                 }
             }
-
             return resultado;
         }
     }

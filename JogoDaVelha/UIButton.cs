@@ -1,10 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JogoDaVelha
 {
@@ -56,5 +52,17 @@ namespace JogoDaVelha
                 return false;
             }
         }
+
+        public bool setBackground(Texture2D background)
+        {
+            this.background = background;
+            return true;
+        }
+
+        public Texture2D getBackground()
+        {
+            return background;
+        }
+
     }
 }

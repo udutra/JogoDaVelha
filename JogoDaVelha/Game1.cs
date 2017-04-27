@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace JogoDaVelha
@@ -12,12 +13,12 @@ namespace JogoDaVelha
 
         private SpriteBatch spriteBatch;
 
-        private Texture2D cellEmpty, cellO, cellX;
+        private Texture2D cellEmpty, cellO, cellX, rbSelecionado, rbNaoSelecionado;
 
         private SoundEffect sndGood, sndElephant, sndMistery, sndSong;
         private SoundEffectInstance playSound;
 
-        private SpriteFont fonteNormal;
+        private SpriteFont fonteNormal, fonteRadioButton;
 
         private Vector2 cellPos;
 
@@ -31,7 +32,7 @@ namespace JogoDaVelha
 
         private Board board;
 
-        private UIButton btSair, btStart;
+        private UIButton btSair, btStart, rbComputador, rbUsuario;
 
         private enum GameState { Null, MainMenu, PlayerTurn, ComputerTurn, ShowResults};
 
@@ -63,20 +64,25 @@ namespace JogoDaVelha
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            cellEmpty   = Content.Load<Texture2D>("Sprites/CellEmpty");
-            cellO       = Content.Load<Texture2D>("Sprites/CellO");
-            cellX       = Content.Load<Texture2D>("Sprites/CellX");
-            fonteNormal = Content.Load<SpriteFont>("Fonts/Normal");
-            sndGood = Content.Load<SoundEffect>("Sounds/ir_begin");
-            sndElephant = Content.Load<SoundEffect>("Sounds/ir_end");
-            sndMistery = Content.Load<SoundEffect>("Sounds/ir_inter");
-            sndSong = Content.Load<SoundEffect>("Sounds/Speech_Off");
-            playSound = sndSong.CreateInstance();
-            playSound.IsLooped = true;
+            cellEmpty           = Content.Load<Texture2D>("Sprites/CellEmpty");
+            cellO               = Content.Load<Texture2D>("Sprites/CellO");
+            cellX               = Content.Load<Texture2D>("Sprites/CellX");
+            rbSelecionado       = Content.Load<Texture2D>("Sprites/rb32_32");
+            rbNaoSelecionado    = Content.Load<Texture2D>("Sprites/rb32_32_ns");
+            fonteNormal         = Content.Load<SpriteFont>("Fonts/Normal");
+            fonteRadioButton    = Content.Load<SpriteFont>("Fonts/RadioButton");
+            sndGood             = Content.Load<SoundEffect>("Sounds/ir_begin");
+            sndElephant         = Content.Load<SoundEffect>("Sounds/ir_end");
+            sndMistery          = Content.Load<SoundEffect>("Sounds/ir_inter");
+            sndSong             = Content.Load<SoundEffect>("Sounds/Speech_Off");
+            playSound           = sndSong.CreateInstance();
+            playSound.IsLooped  = true;
             playSound.Play();
 
-            btSair = new UIButton(new Vector2(10, 70), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
-            btStart = new UIButton(new Vector2(10, 10), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
+            btSair          = new UIButton(new Vector2(10, 340), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
+            btStart         = new UIButton(new Vector2(10, 80), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
+            rbComputador    = new UIButton(new Vector2(10, 150), new Vector2(32, 32), rbSelecionado, "", fonteNormal);
+            rbUsuario       = new UIButton(new Vector2(10, 187), new Vector2(32, 32), rbNaoSelecionado, "", fonteNormal);
             EnterGameState(GameState.MainMenu);
         }
 
@@ -144,7 +150,25 @@ namespace JogoDaVelha
                     {
                         List<Board> possibilidades = board.GetPossibilidades(1);
 
-                        board = possibilidades[0];
+                        int bestScore = -1;
+                        Board bestBoard = null;
+
+                        foreach(Board p in possibilidades)
+                        {
+                            int aux = board.Minimax(p, 9, 2);
+                            
+                             System.Console.WriteLine("Aux = " + aux);
+                            
+                            if(aux > bestScore)
+                            {
+                                bestScore = aux;
+                                bestBoard = p;
+                            }
+                            
+                        }
+
+
+                        board = bestBoard;
 
                         if (board.EhFimDeJogo())
                         {
@@ -199,7 +223,31 @@ namespace JogoDaVelha
                             {
                                 Exit();
                             }
+
+                            if (rbUsuario.TesteClick(pTeste))
+                            {
+                                if (rbUsuario.getBackground() == rbNaoSelecionado && rbComputador.getBackground() == rbSelecionado)
+                                {
+                                    rbUsuario.setBackground(rbSelecionado);
+                                    rbComputador.setBackground(rbNaoSelecionado);
+                                }
+                                
+                            }
+
+                            if (rbComputador.TesteClick(pTeste))
+                            {
+                                if (rbUsuario.getBackground() == rbSelecionado && rbComputador.getBackground() == rbNaoSelecionado)
+                                {
+                                    rbUsuario.setBackground(rbNaoSelecionado);
+                                    rbComputador.setBackground(rbSelecionado);
+                                }
+                                
+
+                            }
                         }
+
+
+
                     }
                     break;
 
@@ -254,23 +302,21 @@ namespace JogoDaVelha
             {
                 case GameState.MainMenu:
                     {
+
+                        float t = (float)(gameTime.TotalGameTime.TotalSeconds * MathHelper.Pi * 1);
+
+                        float alpha = (float)Math.Abs(Math.Sin(t));
+
+                        DrawStringT("Jogo da Velha", new Vector2(320, 40), new Color(1.0f, 1.0f, 1.0f, alpha));
+
+                        DrawString("Jogagor começa jogando",    new Vector2(50, 191), new Color(1.0f, 1.0f, 1.0f, 1));
+                        DrawString("Computador começa jogando", new Vector2(50, 155), new Color(1.0f, 1.0f, 1.0f, 1));
+
                         btSair.Draw(spriteBatch);
                         btStart.Draw(spriteBatch);
-                        /*//string titulo = "Tic-Tac-Toe";
-                        string titulo = "Tempo: " + (int)gameTime.TotalGameTime.TotalSeconds + " segundos";
-                        Vector2 textSize = fonteNormal.MeasureString(titulo);
-                        
-                        spriteBatch.DrawString(
-                            fonteNormal,
-                            titulo,
-                            new Vector2(Width * 0.5f, 40),    //position 
-                            Color.White,            //color
-                            0.0f,                   //rotation
-                            textSize * 0.5f,        //origin (pivot)
-                            Vector2.One,            //scale
-                            SpriteEffects.None,
-                            0.0f
-                            );*/
+                        rbComputador.Draw(spriteBatch);
+                        rbUsuario.Draw(spriteBatch);
+
                     }
                     break;
 
@@ -294,12 +340,15 @@ namespace JogoDaVelha
                         {
                             titulo = titulo + " - O ganhador é o computador";
                         }
-                        else
+                        else if(board.GetVencedor() == 2)
                         {
                             titulo = titulo + " - O ganhador é o jogador";
                         }
+                        else
+                        {
+                            titulo = titulo + " - Jogo empatado";
+                        }
 
-                        
                         Vector2 textSize = fonteNormal.MeasureString(titulo);
                         spriteBatch.DrawString(
                             fonteNormal,
@@ -320,9 +369,9 @@ namespace JogoDaVelha
 
         public void DrawBoard()
         {
-            for (int y = 0; y < board.GetComprimentoArray(); y++)
+            for (int x = 0; x < board.GetAlturaArray(); x++)
             {
-                for (int x = 0; x < board.GetAlturaArray(); x++)
+                for (int y = 0; y < board.GetComprimentoArray(); y++)
                 {
                     cellPos = new Vector2(x * tamanhoImagem + (Width - tamanhoImagem * board.GetAlturaArray()) / 2, y * tamanhoImagem + (Height - tamanhoImagem * board.GetComprimentoArray()) / 2);
 
@@ -341,6 +390,40 @@ namespace JogoDaVelha
                     }
                 }
             }
+        }
+
+        private void DrawStringT(string text, Vector2 pos, Color color)
+        {
+            Vector2 textSize = fonteNormal.MeasureString(text);
+
+            spriteBatch.DrawString(
+                fonteNormal,
+                text,
+                pos,                //position 
+                color,              //color
+                0.0f,               //rotation
+                textSize / 2.0f,    //origin (pivot)
+                Vector2.One,        //scale
+                SpriteEffects.None,
+                0.0f
+            );
+        }
+
+        private void DrawString(string text, Vector2 pos, Color color)
+        {
+            Vector2 textSize = fonteNormal.MeasureString(text);
+
+            spriteBatch.DrawString(
+                fonteRadioButton,
+                text,
+                pos,                //position 
+                color,              //color
+                0.0f,               //rotation
+                new  Vector2(0, 0),    //origin (pivot)
+                Vector2.One,        //scale
+                SpriteEffects.None,
+                0.0f
+            );
         }
 
     }
