@@ -32,7 +32,8 @@ namespace JogoDaVelha
 
         private Board board;
 
-        private UIButton btSair, btStart, rbComputador, rbUsuario;
+        private UIButton btSair, btStart;
+        private UIRadioButton rbComputador, rbUsuario;
 
         private enum GameState { Null, MainMenu, PlayerTurn, ComputerTurn, ShowResults};
 
@@ -81,8 +82,8 @@ namespace JogoDaVelha
 
             btSair          = new UIButton(new Vector2(10, 340), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
             btStart         = new UIButton(new Vector2(10, 80), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
-            rbComputador    = new UIButton(new Vector2(10, 150), new Vector2(32, 32), rbSelecionado, "", fonteNormal);
-            rbUsuario       = new UIButton(new Vector2(10, 187), new Vector2(32, 32), rbNaoSelecionado, "", fonteNormal);
+            rbComputador    = new UIRadioButton(new Vector2(10, 150), new Vector2(32, 32), rbSelecionado, "", fonteNormal, true);
+            rbUsuario       = new UIRadioButton(new Vector2(10, 187), new Vector2(32, 32), rbNaoSelecionado, "", fonteNormal, false);
             EnterGameState(GameState.MainMenu);
         }
 
@@ -226,20 +227,24 @@ namespace JogoDaVelha
 
                             if (rbUsuario.TesteClick(pTeste))
                             {
-                                if (rbUsuario.getBackground() == rbNaoSelecionado && rbComputador.getBackground() == rbSelecionado)
-                                {
+                                if (rbUsuario.getCheck() == false && rbComputador.getCheck() == true)
+                                    {
                                     rbUsuario.setBackground(rbSelecionado);
+                                    rbUsuario.setCheck(true);
                                     rbComputador.setBackground(rbNaoSelecionado);
+                                    rbComputador.setCheck(false);
                                 }
                                 
                             }
 
                             if (rbComputador.TesteClick(pTeste))
                             {
-                                if (rbUsuario.getBackground() == rbSelecionado && rbComputador.getBackground() == rbNaoSelecionado)
+                                if (rbUsuario.getCheck() == true && rbComputador.getCheck() == false)
                                 {
                                     rbUsuario.setBackground(rbNaoSelecionado);
+                                    rbUsuario.setCheck(false);
                                     rbComputador.setBackground(rbSelecionado);
+                                    rbComputador.setCheck(true);
                                 }
                                 
 
