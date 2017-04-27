@@ -13,7 +13,7 @@ namespace JogoDaVelha
 
         private SpriteBatch spriteBatch;
 
-        private Texture2D cellEmpty, cellO, cellX, rbSelecionado, rbNaoSelecionado;
+        private Texture2D cellEmpty, cellO, cellX, rbSelecionado, rbNaoSelecionado, grafico1, grafico2, grafico3, btCima, btBaixo;
 
         private SoundEffect sndGood, sndElephant, sndMistery, sndSong;
         private SoundEffectInstance playSound;
@@ -32,7 +32,7 @@ namespace JogoDaVelha
 
         private Board board;
 
-        private UIButton btSair, btStart;
+        private UIButton btSair, btStart, btAumentar, btDiminuir;
         private UIRadioButton rbComputador, rbUsuario;
 
         private enum GameState { Null, MainMenu, PlayerTurn, ComputerTurn, ShowResults};
@@ -70,20 +70,28 @@ namespace JogoDaVelha
             cellX               = Content.Load<Texture2D>("Sprites/CellX");
             rbSelecionado       = Content.Load<Texture2D>("Sprites/rb32_32");
             rbNaoSelecionado    = Content.Load<Texture2D>("Sprites/rb32_32_ns");
+            grafico1            = Content.Load<Texture2D>("Sprites/grafico1_sf");
+            grafico2            = Content.Load<Texture2D>("Sprites/grafico2_sf");
+            grafico3            = Content.Load<Texture2D>("Sprites/grafico3_sf");
+            btCima              = Content.Load<Texture2D>("Sprites/botaoCima_sf");
+            btBaixo             = Content.Load<Texture2D>("Sprites/botaoBaixo_sf");
             fonteNormal         = Content.Load<SpriteFont>("Fonts/Normal");
             fonteRadioButton    = Content.Load<SpriteFont>("Fonts/RadioButton");
             sndGood             = Content.Load<SoundEffect>("Sounds/ir_begin");
             sndElephant         = Content.Load<SoundEffect>("Sounds/ir_end");
             sndMistery          = Content.Load<SoundEffect>("Sounds/ir_inter");
             sndSong             = Content.Load<SoundEffect>("Sounds/Speech_Off");
+            
             playSound           = sndSong.CreateInstance();
             playSound.IsLooped  = true;
             playSound.Play();
 
             btSair          = new UIButton(new Vector2(10, 340), new Vector2(128, 50), cellEmpty, "Sair", fonteNormal);
             btStart         = new UIButton(new Vector2(10, 80), new Vector2(128, 50), cellEmpty, "Iniciar", fonteNormal);
-            rbComputador    = new UIRadioButton(new Vector2(10, 150), new Vector2(32, 32), rbSelecionado, "", fonteNormal, true);
-            rbUsuario       = new UIRadioButton(new Vector2(10, 187), new Vector2(32, 32), rbNaoSelecionado, "", fonteNormal, false);
+            btAumentar      = new UIButton(new Vector2(450, 280), new Vector2(18, 18), btCima, "", fonteNormal);
+            btDiminuir      = new UIButton(new Vector2(450, 300), new Vector2(18, 18), btBaixo, "", fonteNormal);
+            rbComputador    = new UIRadioButton(new Vector2(10, 200), new Vector2(32, 32), rbSelecionado, "", fonteNormal, true);
+            rbUsuario       = new UIRadioButton(new Vector2(10, 237), new Vector2(32, 32), rbNaoSelecionado, "", fonteNormal, false);
             EnterGameState(GameState.MainMenu);
         }
 
@@ -314,13 +322,21 @@ namespace JogoDaVelha
 
                         DrawStringT("Jogo da Velha", new Vector2(320, 40), new Color(1.0f, 1.0f, 1.0f, alpha));
 
-                        DrawString("Jogagor começa jogando",    new Vector2(50, 191), new Color(1.0f, 1.0f, 1.0f, 1));
-                        DrawString("Computador começa jogando", new Vector2(50, 155), new Color(1.0f, 1.0f, 1.0f, 1));
+                        DrawString("Computador começa jogando", new Vector2(50, 205), new Color(1.0f, 1.0f, 1.0f, 1));
+                        DrawString("Jogagor começa jogando",    new Vector2(50, 241), new Color(1.0f, 1.0f, 1.0f, 1));
+                        
 
                         btSair.Draw(spriteBatch);
                         btStart.Draw(spriteBatch);
+                        btAumentar.Draw(spriteBatch);
+                        btDiminuir.Draw(spriteBatch);
                         rbComputador.Draw(spriteBatch);
                         rbUsuario.Draw(spriteBatch);
+
+                        DrawString("Quem começa jogando", new Vector2(10, 155), new Color(1.0f, 1.0f, 1.0f, 1));
+                        DrawString("Dificuldade", new Vector2(500, 155), new Color(1.0f, 1.0f, 1.0f, 1));
+
+                        spriteBatch.Draw(grafico1, new Vector2(490,200), Color.White);
 
                     }
                     break;
