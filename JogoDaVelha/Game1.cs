@@ -162,28 +162,30 @@ namespace JogoDaVelha
 
                 case GameState.ComputerTurn:
                     {
-                        List<Board> possibilidades = board.GetPossibilidades(1);
 
-                        int bestScore = -1;
-                        Board bestBoard = null;
+                        
+                            List<Board> possibilidades = board.GetPossibilidades(1);
 
-                        foreach(Board p in possibilidades)
-                        {
-                            int aux = board.Minimax(p, 9, 2);
-                            
-                             System.Console.WriteLine("Aux = " + aux);
-                            
-                            if(aux > bestScore)
+                            int bestScore = -1;
+                            Board bestBoard = null;
+
+                            foreach (Board p in possibilidades)
                             {
-                                bestScore = aux;
-                                bestBoard = p;
+                                int aux = board.Minimax(p, 9, 2);
+
+                                System.Console.WriteLine("Aux = " + aux);
+
+                                if (aux > bestScore)
+                                {
+                                    bestScore = aux;
+                                    bestBoard = p;
+                                }
+
                             }
+
                             
-                        }
-
-
-                        board = bestBoard;
-
+                            board = bestBoard;
+                        
                         if (board.EhFimDeJogo())
                         {
                             EnterGameState(GameState.ShowResults);
@@ -356,9 +358,7 @@ namespace JogoDaVelha
 
                                 else if (playSound.Volume > 0)
                                 {
-                                    //System.Console.WriteLine("Volume antes: " + playSound.Volume);
                                     playSound.Volume = playSound.Volume - 0.1f;
-                                    //System.Console.WriteLine("Volume depois: " + playSound.Volume);
                                 }
 
                             }
@@ -383,7 +383,7 @@ namespace JogoDaVelha
                                     Vector2 pMin = new Vector2(x * tamanhoImagem + (Width - tamanhoImagem * board.GetAlturaArray()) / 2, y * tamanhoImagem + (Height - tamanhoImagem * board.GetComprimentoArray()) / 2);
                                     Vector2 pMax = pMin + new Vector2(tamanhoImagem, tamanhoImagem);
 
-                                    if (((pTeste.X > pMin.X) && (pTeste.X < pMax.X)) && ((pTeste.Y > pMin.Y) && (pTeste.Y < pMax.Y)))
+                                    if (((pTeste.X > pMin.X) && (pTeste.X < pMax.X)) && ((pTeste.Y > pMin.Y) && (pTeste.Y < pMax.Y)) && board.RetornaValorCelula(x,y) == 0)
                                     {
                                         board.AtribuiValorCelula(x, y, 2);
                                         sndElephant.Play(1.0f, -1.0f, 0.0f);
