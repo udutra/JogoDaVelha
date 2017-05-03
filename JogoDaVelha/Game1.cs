@@ -27,7 +27,7 @@ namespace JogoDaVelha
         private int Width, Height, tamanhoImagem, nivel;
         private Boolean boolMute;
 
-        private float stateTimer, volume;
+        private float stateTimer;
 
         private Board board;
 
@@ -123,10 +123,7 @@ namespace JogoDaVelha
                 Exit();
             }
 
-            
-
             UpdateGameState(gameTime);
-
             prevMouseState = Mouse.GetState();
 
             base.Update(gameTime);
@@ -157,35 +154,46 @@ namespace JogoDaVelha
 
                 case GameState.PlayerTurn:
                     {
+
                     }
                     break;
 
                 case GameState.ComputerTurn:
                     {
+                        List<Board> possibilidades = board.GetPossibilidades(1);
 
-                        
-                            List<Board> possibilidades = board.GetPossibilidades(1);
+                        int bestScore = -1;
 
-                            int bestScore = -1;
-                            Board bestBoard = null;
+                        List<Board> bestBoard = new List<Board>();
 
-                            foreach (Board p in possibilidades)
+                        foreach (Board p in possibilidades)
+                        {
+                            int aux = board.Minimax(p, 9, 2);
+
+                            System.Console.WriteLine("Aux: " + aux); 
+
+                            if (aux == bestScore)
                             {
-                                int aux = board.Minimax(p, 9, 2);
-
-                                System.Console.WriteLine("Aux = " + aux);
-
-                                if (aux > bestScore)
-                                {
-                                    bestScore = aux;
-                                    bestBoard = p;
-                                }
-
+                                bestBoard.Add(p);
+                            }
+                            else if(aux > bestScore)
+                            {
+                                bestScore = aux;
+                                bestBoard.Clear();
+                                bestBoard.Add(p);
                             }
 
-                            
-                            board = bestBoard;
-                        
+                        }
+
+                        int tam = bestBoard.Count;
+
+                        Random rnd = new Random();
+                        int val = rnd.Next(0, tam-1);
+
+                        System.Console.WriteLine("Val: " + val);
+
+                        board = bestBoard[val];
+
                         if (board.EhFimDeJogo())
                         {
                             EnterGameState(GameState.ShowResults);
@@ -194,6 +202,40 @@ namespace JogoDaVelha
                         {
                             EnterGameState(GameState.PlayerTurn);
                         }
+
+
+                        /*List<Board> possibilidades = board.GetPossibilidades(1);
+
+                        int bestScore = -1;
+                            
+                        Board bestBoard = null;
+
+                        foreach (Board p in possibilidades)
+                        {
+                            int aux = board.Minimax(p, 9, 2);
+
+                            System.Console.WriteLine("Aux = " + aux);
+
+                            if (aux > bestScore)
+                            {
+                                bestScore = aux;
+                                bestBoard = p;
+                            }
+
+                        }
+
+                            
+                        board = bestBoard;
+                        
+                        if (board.EhFimDeJogo())
+                        {
+                            EnterGameState(GameState.ShowResults);
+                        }
+                        else
+                        {
+                            EnterGameState(GameState.PlayerTurn);
+                        }*/
+
 
                     }
                     break;
@@ -232,7 +274,14 @@ namespace JogoDaVelha
                             if (btStart.TesteClick(pTeste))
                             {
                                 sndGood.Play();
-                                EnterGameState(GameState.PlayerTurn);
+                                if (rbUsuario.getCheck())
+                                {
+                                    EnterGameState(GameState.PlayerTurn);
+                                }
+                                else
+                                {
+                                    EnterGameState(GameState.ComputerTurn);
+                                }
                             }
 
                             if (btSair.TesteClick(pTeste))

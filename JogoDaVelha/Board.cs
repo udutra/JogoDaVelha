@@ -131,6 +131,37 @@ namespace JogoDaVelha
             return valor;
         }
 
+        public int Minimax2(Board board, int profundidade, int jogador)
+        {
+            if (board.EhFimDeJogo() || profundidade == 0)
+            {
+                return board.CalcularScore();
+            }
+
+            int valor;
+
+            if (jogador == 1) // humano
+            {
+                valor = 9999999;
+                List<Board> possibilidades = board.GetPossibilidades(2);
+                foreach (Board p in possibilidades)
+                {
+                    valor = Math.Min(valor, Minimax2(p, profundidade - 1, 1 /* Computador */));
+                }
+            }
+            else //jogador == 1 computador
+            {
+                valor = -9999999;
+                List<Board> possibilidades = board.GetPossibilidades(1);
+                foreach (Board p in possibilidades)
+                {
+                    valor = Math.Max(valor, Minimax2(p, profundidade - 1, 2 /* Humano */));
+                }
+            }
+
+            return valor;
+        }
+
         public bool EhFimDeJogo()
         {
             if (GetVencedor() > 0)
