@@ -132,8 +132,9 @@ namespace JogoDaVelha
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
-
+            
             DrawGameState(gameTime);
 
             spriteBatch.End();
